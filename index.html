@@ -108,21 +108,44 @@
     padding: 14px 0;
     border-radius: 10px;
     cursor: pointer;
-    transition: background 0.12s, transform 0.05s;
+    transition: background 0.28s ease, color 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
     font-family: inherit;
   }
-  .grid button:hover { background: var(--btn-hover); }
-  .grid button:active { transform: scale(0.96); }
+  .grid button:hover {
+    background: var(--text);
+    color: var(--bg);
+    transform: translateY(-3px) scale(1.06);
+    box-shadow: 0 8px 20px rgba(255,255,255,0.18);
+  }
+  .grid button:active {
+    transform: translateY(1px) scale(0.94);
+    box-shadow: none;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
   .grid button:focus { outline: none; }
   .op { background: var(--op) !important; color: #fff; }
-  .op:hover { background: var(--op-hover) !important; }
+  .op:hover {
+    background: #fff !important;
+    color: var(--op) !important;
+    box-shadow: 0 6px 18px rgba(255,159,10,0.55) !important;
+  }
   .fn { background: var(--fn) !important; }
-  .fn:hover { background: var(--fn-hover) !important; }
+  .fn:hover {
+    background: var(--text) !important;
+    color: var(--bg) !important;
+  }
   .sci { background: var(--sci) !important; font-size: 15px; }
-  .sci:hover { background: var(--sci-hover) !important; }
+  .sci:hover {
+    background: var(--text) !important;
+    color: var(--bg) !important;
+  }
   .span-2 { grid-column: span 2; }
   .equals { background: var(--accent) !important; }
-  .equals:hover { background: #7ab0ff !important; }
+  .equals:hover {
+    background: #fff !important;
+    color: var(--accent) !important;
+    box-shadow: 0 6px 18px rgba(94,158,255,0.6) !important;
+  }
 </style>
 </head>
 <body>
