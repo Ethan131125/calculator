@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scientific Calculator</title>
+<style>
+  :root {
+    --bg: #1e1e22;
+    --panel: #2a2a30;
+    --display: #15151a;
+    --text: #f5f5f7;
+    --muted: #9a9aa3;
+    --btn: #3a3a42;
+    --btn-hover: #4a4a55;
+    --op: #ff9f0a;
+    --op-hover: #ffb340;
+    --fn: #55555f;
+    --fn-hover: #65656f;
+    --sci: #44444d;
+    --sci-hover: #54545f;
+    --accent: #5e9eff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .calc {
+    width: 400px;
+    background: var(--panel);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .topbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    padding: 0 2px;
+  }
+  .mode-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--display);
+    padding: 3px;
+    border-radius: 8px;
+  }
+  .mode-toggle button {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s, color 0.12s;
+  }
+  .mode-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+  .display {
+    background: var(--display);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    text-align: right;
+    min-height: 92px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
+  .history {
+    color: var(--muted);
+    font-size: 14px;
+    min-height: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .current {
+    font-size: 30px;
+    font-weight: 300;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .grid button {
+    border: none;
+    background: var(--btn);
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 500;
+    padding: 14px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.05s;
+    font-family: inherit;
+  }
+  .grid button:hover { background: var(--btn-hover); }
+  .grid button:active { transform: scale(0.96); }
+  .grid button:focus { outline: none; }
+  .op { background: var(--op) !important; color: #fff; }
+  .op:hover { background: var(--op-hover) !important; }
+  .fn { background: var(--fn) !important; }
+  .fn:hover { background: var(--fn-hover) !important; }
+  .sci { background: var(--sci) !important; font-size: 15px; }
+  .sci:hover { background: var(--sci-hover) !important; }
+  .span-2 { grid-column: span 2; }
+  .equals { background: var(--accent) !important; }
+  .equals:hover { background: #7ab0ff !important; }
+</style>
+</head>
+<body>
+  <div class="calc">
+    <div class="topbar">
+      <div class="mode-toggle">
+        <button id="modeDeg" class="active">DEG</button>
+        <button id="modeRad">RAD</button>
+      </div>
+    </div>
+    <div class="display">
+      <div class="history" id="history"></div>
+      <div class="current" id="current">0</div>
+    </div>
+    <div class="grid">
+      <button class="sci" data-display="sin(" data-code="__SIN__(">sin</button>
+      <button class="sci" data-display="cos(" data-code="__COS__(">cos</button>
+      <button class="sci" data-display="tan(" data-code="__TAN__(">tan</button>
+      <button class="sci" data-display="ln(" data-code="Math.log(">ln</button>
+      <button class="sci" data-display="log(" data-code="Math.log10(">log</button>
+
+      <button class="sci" data-display="π" data-code="Math.PI">π</button>
+      <button class="sci" data-display="e" data-code="Math.E">e</button>
+      <button class="sci" data-display="√(" data-code="Math.sqrt(">√</button>
+      <button class="sci" data-display="^" data-code="**">x^y</button>
+      <button class="sci" data-display="²" data-code="**2">x²</button>
+
+      <button class="sci" data-display="(" data-code="(">(</button>
+      <button class="sci" data-display=")" data-code=")">)</button>
+      <button class="fn" data-action="clear">AC</button>
+      <button class="fn" data-action="backspace">⌫</button>
+      <button class="fn" data-action="sign">+/-</button>
+
+      <button data-digit="7">7</button>
+      <button data-digit="8">8</button>
+      <button data-digit="9">9</button>
+      <button class="op" data-display="÷" data-code="/">÷</button>
+      <button class="fn" data-action="percent">%</button>
+
+      <button data-digit="4">4</button>
+      <button data-digit="5">5</button>
+      <button data-digit="6">6</button>
+      <button class="op" data-display="×" data-code="*">×</button>
+      <button class="sci" data-display="1/(" data-code="1/(">1/x</button>
+
+      <button data-digit="1">1</button>
+      <button data-digit="2">2</button>
+      <button data-digit="3">3</button>
+      <button class="op" data-display="−" data-code="-">−</button>
+      <button class="sci" data-display="exp(" data-code="Math.exp(">exp</button>
+
+      <button class="span-2" data-digit="0">0</button>
+      <button data-action="dot">.</button>
+      <button class="op" data-display="+" data-code="+">+</button>
+      <button class="op equals" data-action="equals">=</button>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const currentEl = document.getElementById('current');
+  const historyEl = document.getElementById('history');
+  const modeDegBtn = document.getElementById('modeDeg');
+  const modeRadBtn = document.getElementById('modeRad');
+
+  let tokens = [];
+  let mode = 'DEG';
+  let justEvaluated = false;
+
+  function render() {
+    const expr = tokens.map(t => t.display).join('');
+    currentEl.textContent = expr || '0';
+  }
+
+  function appendToken(display, code) {
+    if (justEvaluated) {
+      const starts = display.charAt(0);
+      const continuesResult = '+-*/×÷−^%)'.includes(starts) || display === '²';
+      if (!continuesResult) {
+        tokens = [];
+        historyEl.textContent = '';
+      }
+      justEvaluated = false;
+    }
+    tokens.push({ display, code });
+    render();
+  }
+
+  function inputDigit(d) { appendToken(d, d); }
+  function inputDot() { appendToken('.', '.'); }
+  function percent() { appendToken('%', '/100'); }
+
+  function backspace() {
+    if (justEvaluated) {
+      tokens = [];
+      justEvaluated = false;
+      historyEl.textContent = '';
+    } else {
+      tokens.pop();
+    }
+    render();
+  }
+
+  function clearAll() {
+    tokens = [];
+    justEvaluated = false;
+    historyEl.textContent = '';
+    render();
+  }
+
+  function toggleSign() {
+    if (justEvaluated) justEvaluated = false;
+    let i = tokens.length;
+    while (i > 0 && /^[0-9.]$/.test(tokens[i - 1].display)) i--;
+    if (i === tokens.length) {
+      tokens.push({ display: '-', code: '-' });
+      render();
+      return;
+    }
+    const prev = i > 0 ? tokens[i - 1] : null;
+    const beforePrev = i > 1 ? tokens[i - 2] : null;
+    const isUnary = prev && prev.display === '-' &&
+      (!beforePrev || /[+\-*/^(×÷−]/.test(beforePrev.display.slice(-1)) || beforePrev.display.endsWith('('));
+    if (isUnary) {
+      tokens.splice(i - 1, 1);
+    } else {
+      tokens.splice(i, 0, { display: '-', code: '-' });
+    }
+    render();
+  }
+
+  function formatResult(n) {
+    if (!isFinite(n)) return 'Error';
+    if (Math.abs(n) < 1e-12) return '0';
+    const abs = Math.abs(n);
+    if (abs < 1e-6 || abs >= 1e16) return n.toExponential(6);
+    return Number(n.toPrecision(12)).toString();
+  }
+
+  function evaluate() {
+    if (tokens.length === 0) return;
+    const exprDisplay = tokens.map(t => t.display).join('');
+    let code = tokens.map(t => t.code).join('');
+    if (mode === 'DEG') {
+      code = code.replace(/__SIN__/g, 'sind')
+                 .replace(/__COS__/g, 'cosd')
+                 .replace(/__TAN__/g, 'tand');
+    } else {
+      code = code.replace(/__SIN__/g, 'Math.sin')
+                 .replace(/__COS__/g, 'Math.cos')
+                 .replace(/__TAN__/g, 'Math.tan');
+    }
+    // Auto-close unmatched parens
+    let open = 0;
+    for (const c of code) {
+      if (c === '(') open++;
+      else if (c === ')') open--;
+    }
+    if (open > 0) code += ')'.repeat(open);
+
+    try {
+      const sind = x => Math.sin(x * Math.PI / 180);
+      const cosd = x => Math.cos(x * Math.PI / 180);
+      const tand = x => Math.tan(x * Math.PI / 180);
+      const fn = new Function('Math', 'sind', 'cosd', 'tand', `"use strict"; return (${code});`);
+      const result = fn(Math, sind, cosd, tand);
+      if (typeof result !== 'number' || !isFinite(result)) {
+        currentEl.textContent = 'Error';
+        historyEl.textContent = exprDisplay;
+        tokens = [];
+        justEvaluated = true;
+        return;
+      }
+      const formatted = formatResult(result);
+      historyEl.textContent = exprDisplay + ' =';
+      tokens = [{ display: formatted, code: formatted }];
+      justEvaluated = true;
+      currentEl.textContent = formatted;
+    } catch (err) {
+      currentEl.textContent = 'Error';
+      historyEl.textContent = exprDisplay;
+      tokens = [];
+      justEvaluated = true;
+    }
+  }
+
+  document.querySelectorAll('.grid button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.digit) inputDigit(btn.dataset.digit);
+      else if (btn.dataset.action === 'dot') inputDot();
+      else if (btn.dataset.action === 'clear') clearAll();
+      else if (btn.dataset.action === 'backspace') backspace();
+      else if (btn.dataset.action === 'sign') toggleSign();
+      else if (btn.dataset.action === 'percent') percent();
+      else if (btn.dataset.action === 'equals') evaluate();
+      else if (btn.dataset.display !== undefined) appendToken(btn.dataset.display, btn.dataset.code);
+      btn.blur();
+    });
+  });
+
+  modeDegBtn.addEventListener('click', () => {
+    mode = 'DEG';
+    modeDegBtn.classList.add('active');
+    modeRadBtn.classList.remove('active');
+    modeDegBtn.blur();
+  });
+  modeRadBtn.addEventListener('click', () => {
+    mode = 'RAD';
+    modeRadBtn.classList.add('active');
+    modeDegBtn.classList.remove('active');
+    modeRadBtn.blur();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const k = e.key;
+    if (/^[0-9]$/.test(k)) inputDigit(k);
+    else if (k === '.') inputDot();
+    else if (k === '+') appendToken('+', '+');
+    else if (k === '-') appendToken('−', '-');
+    else if (k === '*') appendToken('×', '*');
+    else if (k === '/') appendToken('÷', '/');
+    else if (k === '(') appendToken('(', '(');
+    else if (k === ')') appendToken(')', ')');
+    else if (k === '^') appendToken('^', '**');
+    else if (k === 'Enter' || k === '=') { e.preventDefault(); evaluate(); }
+    else if (k === 'Backspace') backspace();
+    else if (k === 'Escape') clearAll();
+    else if (k === '%') percent();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
